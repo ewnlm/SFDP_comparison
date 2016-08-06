@@ -1,0 +1,20 @@
+#!/usr/bin/perl -w
+  use strict;
+  my $golden = shift @ARGV;
+  my $verify = shift @ARGV;
+  my %sfdp;
+  open FP, "$golden";
+  while(<FP>) {
+    if(/((\w+)h,(\w)h)/) {
+      my $addr = sprintf("%03X", hex $1);
+      $sfdp{$addr}{1} = $2;
+    }
+  }
+  close FP;
+
+  open FP, "$verify";
+  while(<FP>) {
+    my @ary = (split /\s+/)[-16..-1];
+    print "@ary\n";
+  }
+  close FP;
