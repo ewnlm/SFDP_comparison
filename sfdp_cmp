@@ -2,19 +2,32 @@
   use strict;
   my $golden = shift @ARGV;
   my $verify = shift @ARGV;
-  my %sfdp;
+  my (%sfdp, $cnt);
+  ### Golden SFDP format
   open FP, "$golden";
   while(<FP>) {
-    if(/((\w+)h,(\w)h)/) {
-      my $addr = sprintf("%03X", hex $1);
-      $sfdp{$addr}{1} = $2;
+    if(/(\w+)h,(\w+)h/) {
+      $cnt = sprintf("%03X", hex $1);
+      $sfdp{$cnt}{1} = $2;
     }
   }
   close FP;
-
+  ### Verify SFDP format
   open FP, "$verify";
+  $cnt=0;
   while(<FP>) {
     my @ary = (split /\s+/)[-16..-1];
-    print "@ary\n";
+    for my $i(@ary) {
+      my $addr = sprintf("%03X", $cnt);
+      $sfdp{$addr}{2} = $i;
+      $cnt++;
+    }
   }
   close FP;
+  ### Match or not
+  for my $addr(sort keys %sfdp) {
+    if(exists $sfdp{$addr}{1} and exists $sfdp{$addr}{2}) {
+      print "$addr,$sfdp{$addr}{1},$sfdp{$addr}{2},";
+      ($sfdp{$addr}{1} eq $sfdp{$addr}{2})?(print "O\n"):(print "X\n");
+    }
+  }
