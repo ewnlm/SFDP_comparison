@@ -23,11 +23,11 @@
   
   if [ -e ${golden} ] && [ -e ${verify} ]; then
     perl sfdp_cmp ${golden} ${verify} > ${golden/.csv/_result.csv}
-    golden_line=`wc -l ${golden}`
-    result_line=`wc -l ${golden/.csv/_result.csv}`
-    echo "Golden line: ${golden_line}"
-    echo "Result line: ${result_line}"
-    if [ "${golden_line}" == "${result_line}" ]; then
+    golden_line=`wc -l ${golden} | cut -d ' ' -f 1`
+    result_line=`wc -l ${golden/.csv/_result.csv} | cut -d ' ' -f 1`
+    echo "Total lines of Golden: ${golden_line}"
+    echo "Total lines of Result: ${result_line}"
+    if [ ${golden_line} != ${result_line} ]; then
       echo "something error"
     fi
     match=`grep -n 'O$' ${golden/.csv/_result.csv} | wc -l`
@@ -37,6 +37,7 @@
       echo "Fail list:"
       grep -n 'X$' ${golden/.csv/_result.csv}
     fi
+    echo "done"
   else
     echo "not such file(s)"
     exit 1
